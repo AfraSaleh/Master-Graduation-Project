@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-driven Fraud Detection and Prevention Platform — Afra Allahyani</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep: #0a0f1a;
+      --bg-mid: #111827;
+      --accent-teal: #2dd4bf;
+      --accent-cyan: #22d3ee;
+      --accent-amber: #fbbf24;
+      --text-primary: #f1f5f9;
+      --text-muted: rgba(241, 245, 249, 0.62);
+      --glass-bg: rgba(15, 23, 42, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-highlight: rgba(255, 255, 255, 0.06);
+      --radius-lg: 1.5rem;
+      --radius-md: 1rem;
+      --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      line-height: 1.65;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    .bg-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(45, 212, 191, 0.12), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 85% 80%, rgba(34, 211, 238, 0.08), transparent 50%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(251, 191, 36, 0.04), transparent 60%),
+        linear-gradient(160deg, #0a0f1a 0%, #0f172a 40%, #111827 100%);
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.35;
+      background-image:
+        linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, black 20%, transparent 75%);
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+      pointer-events: none;
+      animation: float 12s ease-in-out infinite;
+    }
+    .orb-1 { width: 420px; height: 420px; background: rgba(45, 212, 191, 0.15); top: -120px; left: -80px; }
+    .orb-2 { width: 360px; height: 360px; background: rgba(34, 211, 238, 0.1); bottom: 10%; right: -100px; animation-delay: -4s; }
+    .orb-3 { width: 280px; height: 280px; background: rgba(251, 191, 36, 0.07); top: 45%; left: 30%; animation-delay: -8s; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(20px, -30px) scale(1.05); }
+      66% { transform: translate(-15px, 20px) scale(0.97); }
+    }
+
+    /* Sparkles */
+    .sparkles {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .sparkle {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 6px 1px rgba(45, 212, 191, 0.8), 0 0 12px 2px rgba(34, 211, 238, 0.4);
+      animation:
+        sparkle-twinkle var(--dur, 3s) ease-in-out infinite,
+        sparkle-drift calc(var(--dur, 3s) * 2) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+      opacity: 0;
+    }
+
+    .sparkle::before,
+    .sparkle::after {
+      content: '';
+      position: absolute;
+      background: inherit;
+      border-radius: inherit;
+      box-shadow: inherit;
+    }
+
+    .sparkle::before {
+      width: 100%;
+      height: 30%;
+      top: 35%;
+      left: 0;
+      transform: scaleX(2.5);
+    }
+
+    .sparkle::after {
+      width: 30%;
+      height: 100%;
+      left: 35%;
+      top: 0;
+      transform: scaleY(2.5);
+    }
+
+    @keyframes sparkle-twinkle {
+      0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+      20% { opacity: 0; }
+      50% { opacity: var(--peak, 0.9); transform: scale(1) rotate(45deg); }
+      80% { opacity: 0; }
+    }
+
+    @keyframes sparkle-drift {
+      0%, 100% { translate: 0 0; }
+      50% { translate: var(--dx, 12px) var(--dy, -18px); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(45, 212, 191, 0.15), 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08); }
+      50% { box-shadow: 0 0 40px rgba(45, 212, 191, 0.3), 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12); }
+    }
+
+    @keyframes border-glow {
+      0%, 100% { border-color: rgba(45, 212, 191, 0.2); }
+      50% { border-color: rgba(34, 211, 238, 0.45); }
+    }
+
+    @keyframes slide-shine {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
+
+    /* Entrance animations */
+    .animate-in {
+      animation: fade-up 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .animate-in-delay-1 { animation-delay: 0.12s; }
+    .animate-in-delay-2 { animation-delay: 0.24s; }
+    .animate-in-delay-3 { animation-delay: 0.36s; }
+    .animate-in-delay-4 { animation-delay: 0.48s; }
+    .animate-in-delay-5 { animation-delay: 0.6s; }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Glass utility */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-glass);
+    }
+
+    .glass-soft {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Layout */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+
+    /* Header */
+    .hero {
+      animation: glow-pulse 4s ease-in-out infinite;
+      text-align: center;
+      padding: 3rem 1.5rem 2.5rem;
+      border-radius: var(--radius-lg);
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+      animation: slide-shine 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-teal);
+      background: rgba(45, 212, 191, 0.1);
+      border: 1px solid rgba(45, 212, 191, 0.25);
+      margin-bottom: 1.5rem;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-teal);
+      box-shadow: 0 0 8px var(--accent-teal);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .hero h1 {
+      font-size: clamp(1.35rem, 4.5vw, 2rem);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.85) 50%, var(--accent-teal) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 6s linear infinite;
+    }
+
+    .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .meta strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Vision quote */
+    .vision {
+      padding: 2rem 1.75rem;
+      border-radius: var(--radius-lg);
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .vision:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 48px rgba(45, 212, 191, 0.12), var(--shadow-glass);
+    }
+
+    .vision::before {
+      content: '\201C';
+      position: absolute;
+      top: -0.2rem;
+      left: 1rem;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 5rem;
+      line-height: 1;
+      color: rgba(45, 212, 191, 0.15);
+      pointer-events: none;
+    }
+
+    .vision blockquote {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.05rem, 3vw, 1.35rem);
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.92);
+      position: relative;
+      z-index: 1;
+    }
+
+    .vision .emphasis {
+      display: block;
+      margin-top: 0.75rem;
+      color: var(--accent-teal);
+      font-style: normal;
+      font-weight: 600;
+      font-size: 0.85em;
+      letter-spacing: 0.01em;
+      animation: fade-in 1.2s ease 0.8s both;
+    }
+
+    /* Sections */
+    section { margin-bottom: 2rem; }
+
+    .section-card {
+      padding: 1.75rem;
+      border-radius: var(--radius-lg);
+      transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .section-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(45, 212, 191, 0.2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 24px rgba(45, 212, 191, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: clamp(1.2rem, 3.5vw, 1.55rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    p { color: var(--text-muted); margin-bottom: 0.85rem; font-size: 0.95rem; }
+    p:last-child { margin-bottom: 0; }
+
+    /* Stats row */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    @media (min-width: 540px) {
+      .stats { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .stat {
+      padding: 1rem 0.75rem;
+      border-radius: var(--radius-md);
+      text-align: center;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .stat:hover {
+      transform: scale(1.05);
+      background: rgba(45, 212, 191, 0.08);
+    }
+
+    .stat-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent-teal);
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      line-height: 1.3;
+    }
+
+    /* Pillars grid */
+    .pillars {
+      display: grid;
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    @media (min-width: 600px) {
+      .pillars { grid-template-columns: 1fr 1fr; }
+    }
+
+    .pillar {
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      transition: border-color 0.3s, background 0.3s, transform 0.3s ease;
+    }
+
+    .pillar:hover {
+      border-color: rgba(45, 212, 191, 0.25);
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-4px);
+    }
+
+    .pillar-icon {
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .pillar:hover .pillar-icon {
+      transform: scale(1.15) rotate(-5deg);
+    }
+
+    .pillar-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 0.65rem;
+      background: rgba(45, 212, 191, 0.12);
+      border: 1px solid rgba(45, 212, 191, 0.2);
+    }
+
+    .pillar h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text-primary);
+    }
+
+    .pillar p {
+      font-size: 0.82rem;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Decision flow */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .flow-step {
+      flex: 1 1 calc(50% - 0.25rem);
+      min-width: 130px;
+      padding: 0.85rem;
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .flow-step:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    @media (min-width: 540px) {
+      .flow-step { flex: 1; }
+    }
+
+    .flow-step .label { display: block; font-size: 0.65rem; font-weight: 500; color: var(--text-muted); margin-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    .step-allow  { border-color: rgba(52, 211, 153, 0.3);  background: rgba(52, 211, 153, 0.08);  color: #6ee7b7; }
+    .step-stepup { border-color: rgba(34, 211, 238, 0.3);  background: rgba(34, 211, 238, 0.08);  color: #67e8f9; }
+    .step-hold   { border-color: rgba(251, 191, 36, 0.3);  background: rgba(251, 191, 36, 0.08);  color: #fcd34d; }
+    .step-block  { border-color: rgba(248, 113, 113, 0.3); background: rgba(248, 113, 113, 0.08); color: #fca5a5; }
+
+    /* Value list */
+    .value-list {
+      list-style: none;
+      margin-top: 0.75rem;
+    }
+
+    .value-list li {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .value-list li:last-child { border-bottom: none; }
+
+    .check {
+      flex-shrink: 0;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: rgba(45, 212, 191, 0.15);
+      border: 1px solid rgba(45, 212, 191, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: var(--accent-teal);
+      margin-top: 0.15rem;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s;
+    }
+
+    /* Video */
+    .video-section {
+      padding: 1.75rem;
+      border-radius: var(--radius-lg);
+      position: relative;
+      animation: border-glow 3s ease-in-out infinite;
+    }
+
+    .video-section::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: calc(var(--radius-lg) + 1px);
+      background: linear-gradient(135deg, rgba(45,212,191,0.3), transparent 40%, rgba(34,211,238,0.2), transparent 70%, rgba(251,191,36,0.15));
+      z-index: -1;
+      opacity: 0.6;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .video-wrap {
+      position: relative;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-top: 1rem;
+      border: 1px solid rgba(45, 212, 191, 0.25);
+      background: #000;
+      aspect-ratio: 16 / 9;
+      box-shadow: 0 0 30px rgba(45, 212, 191, 0.15), 0 8px 32px rgba(0, 0, 0, 0.5);
+      transition: box-shadow 0.4s ease, transform 0.4s ease;
+    }
+
+    .video-wrap:hover {
+      box-shadow: 0 0 50px rgba(45, 212, 191, 0.3), 0 12px 40px rgba(0, 0, 0, 0.5);
+      transform: scale(1.01);
+    }
+
+    .video-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .video-caption {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem 0;
+      font-size: 0.78rem;
+      color: rgba(241, 245, 249, 0.35);
+    }
+
+    footer span { color: var(--accent-teal); opacity: 0.7; }
+
+    /* Nav dots */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .toc a {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      transition: all 0.25s ease;
+    }
+
+    .toc a:hover {
+      color: var(--accent-teal);
+      border-color: rgba(45, 212, 191, 0.3);
+      background: rgba(45, 212, 191, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .value-list li {
+      transition: transform 0.25s ease, padding-left 0.25s ease;
+    }
+
+    .value-list li:hover {
+      transform: translateX(6px);
+    }
+
+    .value-list li:hover .check {
+      transform: scale(1.2);
+      background: rgba(45, 212, 191, 0.3);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-scene" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="orb orb-1" aria-hidden="true"></div>
+  <div class="orb orb-2" aria-hidden="true"></div>
+  <div class="orb orb-3" aria-hidden="true"></div>
+  <div class="sparkles" id="sparkles" aria-hidden="true"></div>
+
+  <main class="page">
+
+    <!-- Hero -->
+    <header class="hero glass animate-in">
+      <div class="badge animate-in animate-in-delay-1"><span class="badge-dot"></span> Graduation Project</div>
+      <h1 class="animate-in animate-in-delay-2">AI-driven Fraud Detection and Prevention Platform</h1>
+      <div class="meta animate-in animate-in-delay-3">
+        <div>Developed By <strong>Afra Allahyani</strong></div>
+        <div>Supervised By <strong>Dr. Qazi Emad Ulhaq</strong></div>
+      </div>
+    </header>
+
+    <!-- Quick nav -->
+    <nav class="toc animate-in animate-in-delay-4" aria-label="Sections">
+      <a href="#vision">Vision</a>
+      <a href="#demo">Demo Video</a>
+      <a href="#problem">The Problem</a>
+      <a href="#solution">Solution</a>
+      <a href="#platform">Platform</a>
+      <a href="#value">Business Value</a>
+    </nav>
+
+    <!-- Vision -->
+    <section id="vision" class="vision glass animate-in animate-in-delay-5" aria-labelledby="vision-heading">
+      <h2 id="vision-heading" class="section-label" style="position:relative;z-index:1;">Our Vision</h2>
+      <blockquote>
+        We are not building another fraud detection system…
+        <span class="emphasis">We are building a forensic-ready banking security platform that reduces risk, explains decisions, and produces court-admissible evidence.</span>
+      </blockquote>
+    </section>
+
+    <!-- Video -->
+    <section id="demo" class="reveal">
+      <div class="video-section glass">
+        <div class="section-label">Live Demonstration</div>
+        <h2>Platform Demo Video</h2>
+        <p>Watch the full walkthrough of the AI-driven fraud detection platform — from transaction scoring to forensic case export.</p>
+
+        <div class="video-wrap">
+          <video controls preload="metadata" playsinline>
+            <source src="demo.mp4" type="video/mp4" />
+            Your browser does not support embedded video.
+            <a href="demo.mp4" style="color:var(--accent-teal)">Download the video</a> instead.
+          </video>
+        </div>
+        <p class="video-caption">Afra Allahyani — AI-driven Fraud Detection and Prevention Platform Demo</p>
+      </div>
+    </section>
+
+    <!-- Problem -->
+    <section id="problem" class="reveal">
+      <div class="section-card glass">
+        <div class="section-label">Business Context</div>
+        <h2>The Problem Banks Face Today</h2>
+        <p>
+          Financial fraud costs the global banking industry billions every year. Traditional rule-based systems generate high false-positive rates, slow investigations, and decisions that are difficult to defend in audits or legal proceedings.
+        </p>
+        <p>
+          Banks need more than a binary "approve or deny" engine. They need a platform that <strong style="color:var(--text-primary)">protects customers in real time</strong>, gives investigators a clear trail of evidence, and quantifies the financial impact of every decision — all while staying compliant with regulatory expectations.
+        </p>
+
+        <div class="stats">
+          <div class="stat glass-soft">
+            <div class="stat-value">$</div>
+            <div class="stat-label">Direct loss from undetected fraud</div>
+          </div>
+          <div class="stat glass-soft">
+            <div class="stat-value">↑</div>
+            <div class="stat-label">Operational cost of manual reviews</div>
+          </div>
+          <div class="stat glass-soft">
+            <div class="stat-value">?</div>
+            <div class="stat-label">Unexplained AI black-box decisions</div>
+          </div>
+          <div class="stat glass-soft">
+            <div class="stat-value">⚖</div>
+            <div class="stat-label">Weak evidence for legal cases</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solution -->
+    <section id="solution" class="reveal">
+      <div class="section-card glass">
+        <div class="section-label">Our Approach</div>
+        <h2>A Complete Fraud &amp; AML Security Layer</h2>
+        <p>
+          This platform sits between a bank's payment channels and its core systems. Every transfer and card transaction is scored in milliseconds by a hybrid AI engine — combining machine learning with explainable business rules — before any money moves.
+        </p>
+        <p>
+          Instead of a single "fraud score," the system returns a <strong style="color:var(--text-primary)">graded decision</strong> with reason codes, automatically opens forensic cases for suspicious activity, and gives operations teams a live dashboard to monitor risk posture across the entire institution.
+        </p>
+
+        <div class="flow">
+          <div class="flow-step glass-soft step-allow"><span class="label">Low Risk</span>Allow</div>
+          <div class="flow-step glass-soft step-stepup"><span class="label">Medium</span>Step-Up Auth</div>
+          <div class="flow-step glass-soft step-hold"><span class="label">High</span>Hold for Review</div>
+          <div class="flow-step glass-soft step-block"><span class="label">Critical</span>Block</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platform components -->
+    <section id="platform" class="reveal">
+      <div class="section-card glass">
+        <div class="section-label">Architecture</div>
+        <h2>Four Integrated Components</h2>
+        <p>Each layer serves a distinct business function — from real-time scoring to courtroom-ready evidence export.</p>
+
+        <div class="pillars">
+          <article class="pillar glass-soft">
+            <div class="pillar-icon">🏦</div>
+            <h3>Transfer API</h3>
+            <p>The banking channel layer. Validates and routes every transfer request through fraud scoring before execution — blocking suspicious payments instantly.</p>
+          </article>
+          <article class="pillar glass-soft">
+            <div class="pillar-icon">🧠</div>
+            <h3>AI Model Service</h3>
+            <p>Hybrid ML + rules engine trained on real fraud datasets. Scores transfers and card transactions with velocity checks, device signals, and explainable reason codes.</p>
+          </article>
+          <article class="pillar glass-soft">
+            <div class="pillar-icon">🔐</div>
+            <h3>Fraud API &amp; Forensics</h3>
+            <p>Core decision engine with case management, audit timelines, evidence boards, and signed ZIP export bundles (JSON + PDF + SHA-256 manifest) for legal proceedings.</p>
+          </article>
+          <article class="pillar glass-soft">
+            <div class="pillar-icon">📊</div>
+            <h3>Operations Dashboard (Afra Gate)</h3>
+            <p>Executive KPIs, geo risk hotspots, live alerts, investigator workflows, and model feedback loops — all in one glass-morphism command center.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Business value -->
+    <section id="value" class="reveal">
+      <div class="section-card glass">
+        <div class="section-label">ROI &amp; Impact</div>
+        <h2>Measurable Business Value</h2>
+        <p>The platform is designed to deliver outcomes that bank executives and compliance officers can track and defend:</p>
+
+        <ul class="value-list">
+          <li>
+            <span class="check">✓</span>
+            <span><strong style="color:var(--text-primary)">Loss prevention:</strong> Real-time blocking of high-risk transfers and card transactions, with estimated SAR loss prevented tracked on the dashboard.</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong style="color:var(--text-primary)">Reduced investigation time:</strong> Auto-opened forensic cases with structured evidence boards, operator notes, and tiered investigation queues (Tier 1 → Escalation).</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong style="color:var(--text-primary)">Regulatory readiness:</strong> Every decision is logged with model version, reason codes, and a tamper-evident export bundle suitable for audit and legal review.</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong style="color:var(--text-primary)">Explainable AI:</strong> Decisions come with human-readable reason codes — not opaque scores — building trust with customers and regulators.</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong style="color:var(--text-primary)">Continuous improvement:</strong> Investigators can submit model feedback and case dispositions (False Positive, True Positive, Law Enforcement) to refine the AI over time.</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong style="color:var(--text-primary)">Geo-intelligence:</strong> Risk hotspot mapping across countries and cities helps prioritize AML and fraud resources where they matter most.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="reveal">
+      <p>AI-driven Fraud Detection and Prevention Platform &mdash; Developed By <span>Afra Allahyani</span></p>
+      <p style="margin-top:0.35rem;">Supervised By Dr. Qazi Emad Ulhaq &bull; 2026</p>
+    </footer>
+
+  </main>
+
+  <script>
+    (function () {
+      /* Sparkle particles */
+      var container = document.getElementById('sparkles');
+      if (container) {
+        var count = window.innerWidth < 640 ? 28 : 45;
+        for (var i = 0; i < count; i++) {
+          var s = document.createElement('span');
+          s.className = 'sparkle';
+          var size = Math.random() * 3 + 2;
+          s.style.cssText =
+            'width:' + size + 'px;height:' + size + 'px;' +
+            'left:' + (Math.random() * 100) + '%;' +
+            'top:' + (Math.random() * 100) + '%;' +
+            '--dur:' + (2 + Math.random() * 4) + 's;' +
+            '--delay:' + (Math.random() * 5) + 's;' +
+            '--peak:' + (0.5 + Math.random() * 0.5) + ';' +
+            '--dx:' + ((Math.random() - 0.5) * 30) + 'px;' +
+            '--dy:' + ((Math.random() - 0.5) * 40) + 'px;';
+          container.appendChild(s);
+        }
+      }
+
+      /* Scroll reveal */
+      var reveals = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        reveals.forEach(function (el) { observer.observe(el); });
+      } else {
+        reveals.forEach(function (el) { el.classList.add('visible'); });
+      }
+    })();
+  </script>
+
+</body>
+</html>
